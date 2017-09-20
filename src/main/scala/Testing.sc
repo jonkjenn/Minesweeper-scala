@@ -7,9 +7,14 @@ case object Flagged extends CellState
 val v = Vector(false)
 val w = Vector(true,true,false)
 
+
 var a = Vector.fill[Either[CellState,Boolean]](5,5)(Left(Initial))
 //var a = Vector.fill[Int](5)(1)
 //var a = Vector.fill(5){1}
+
+var b = Vector(5,4,2,6,7)
+
+b.reduce((a,b) => a + b)
 
 math.pow(1000000000,-9)
 

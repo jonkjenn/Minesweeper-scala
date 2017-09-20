@@ -252,11 +252,9 @@ package com.jonkjenn.minesweeper {
 
     val markedMines: TextField = new TextField() {
       editable = false
-      focusable = false
     }
     val timer: TextField = new TextField("0") {
       editable = false
-      focusable = false
     }
     val canvas = new Canvas(cellSize, Rect(width, height)) {}
 
@@ -332,16 +330,7 @@ package com.jonkjenn.minesweeper {
 
       reactions += {
         case KeyPressed(_, Key.F2, _, _) => {
-          val d = createMap(width, height, mineCount)
-          uncovered = d._1
-          mineMap = d._2
-          neighbours = d._3
-
-          canvas.data(convertData(
-            uncovered,
-            mineMap,
-            neighbours
-          ))
+          updateMap()
         }
         case MouseMoved(_, point, _) => {
           getCell(point.x, point.y, cellSize, Rect(width, height)) match {
@@ -357,8 +346,9 @@ package com.jonkjenn.minesweeper {
             case -1 =>
             case 0 => {
               state = 1
-              t.purge()
-              t.scheduleAtFixedRate(task, 0, 1000)
+              try {
+                t.scheduleAtFixedRate(task, 0, 1000)
+              }catch{case e:IllegalStateException =>}
               checkMouseClick(point)
             }
             case 1 =>{
@@ -378,8 +368,10 @@ package com.jonkjenn.minesweeper {
           mineMap(p.x)(p.y) match{
             case true if state == 1=> {
               state = -1
-              t.cancel()
-              t.purge()
+              try {
+                t.cancel()
+                t.purge()
+              }catch{case _:Throwable =>}
             }
             case _ =>
           }
@@ -404,6 +396,7 @@ package com.jonkjenn.minesweeper {
     focusable = true
 
     override def paintComponent(g: Graphics2D): Unit ={
+      requestFocus
       for(x <- data.indices; y<- data(x).indices){
         val dc = Point(x*cellSize.width,y*cellSize.height)
         data(x)(y) match{
